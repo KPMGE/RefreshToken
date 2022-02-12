@@ -1,3 +1,4 @@
+import { hash } from "bcryptjs";
 import { User } from "../../entities/User";
 import { IUsersRepositoty } from "../../repositories/IUsersRepository";
 import { ICreateUserRequestDTO } from "./CreateUserDTO";
@@ -14,7 +15,9 @@ export class CreateUserUseCase {
       throw new Error("User Already exists!");
     }
 
-    const newUser = new User({ name, password, user_name });
+    const passwordHash = await hash(password, 8);
+    const newUser = new User({ name, password: passwordHash, user_name });
+
     const savedUser = await this.usersRepository.save(newUser);
 
     return savedUser;
