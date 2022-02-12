@@ -1,8 +1,7 @@
 import { app } from "./app";
+import { routes } from "./routes";
 
-app.get("/", (req, res) => {
-  res.send("Server up");
-});
+app.use(routes);
 
 const port = 3333;
 app.listen(port, () => {
