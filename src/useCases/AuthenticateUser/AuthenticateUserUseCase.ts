@@ -1,15 +1,16 @@
 import { compare } from "bcryptjs";
-import { sign } from "jsonwebtoken";
+import { GenerateRefreshTokenProvider } from "../../providers/GenerateRefreshTokenProvider";
+import { GenerateTokenProvider } from "../../providers/GenerateTokenProvider";
 import { IUsersRepositoty } from "../../repositories/IUsersRepository";
 import { IAuthenticateUserRequestDTO } from "./AuthenticateUserDTO";
 
 export class AuthenticateUserUseCase {
-  constructor(private usersRepository: IUsersRepositoty) {}
+  constructor(
+    private usersRepository: IUsersRepositoty,
+    private generateRefreshTokenProvider: GenerateRefreshTokenProvider
+  ) {}
 
-  async execute({
-    password,
-    user_name,
-  }: IAuthenticateUserRequestDTO): Promise<string> {
+  async execute({ password, user_name }: IAuthenticateUserRequestDTO) {
     const user = await this.usersRepository.findUserByUserName(user_name);
 
     if (!user) {
@@ -22,11 +23,11 @@ export class AuthenticateUserUseCase {
       throw new Error("Wrong user or password!");
     }
 
-    const token = sign({}, "secret key", {
-      subject: user.id,
-      expiresIn: "20s",
-    });
+    const token = new GenerateTokenProvider().execute(user.id);
+    const refreshToken = await this.generateRefreshTokenProvider.execute(
+      user.id
+    );
 
-    return token;
+    return { token, refreshToken };
   }
 }

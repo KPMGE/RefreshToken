@@ -13,7 +13,7 @@ export class AuthenticateUserController {
         password,
       });
 
-      return response.json({ token });
+      return response.json(token);
     } catch (error) {
       return response.status(401).json({
         message: error.message || "Unexpected error",
