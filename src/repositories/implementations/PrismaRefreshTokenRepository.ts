@@ -16,4 +16,14 @@ export class PrismaRefreshTokenRepository implements IRefreshTokenRepository {
 
     return savedRefreshToken;
   }
+
+  async findById(refreshTokenId: string): Promise<RefreshToken> {
+    const foundRefreshToken = await client.refreshToken.findFirst({
+      where: {
+        id: refreshTokenId,
+      },
+    });
+
+    return foundRefreshToken;
+  }
 }
