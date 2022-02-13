@@ -1,4 +1,5 @@
-import { GenerateRefreshTokenProvider } from "../../providers/GenerateRefreshTokenProvider";
+import { RefreshTokenProvider } from "../../providers/implementations/RefreshTokenProvider";
+import { TokenProvider } from "../../providers/implementations/TokenProvider";
 import { PrismaRefreshTokenRepository } from "../../repositories/implementations/PrismaRefreshTokenRepository";
 import { PrismaUsersRepository } from "../../repositories/implementations/PrismaUsersRepository";
 import { AuthenticateUserController } from "./AuthenticateUserController";
@@ -7,12 +8,13 @@ import { AuthenticateUserUseCase } from "./AuthenticateUserUseCase";
 const usersRepository = new PrismaUsersRepository();
 const refreshTokenRepository = new PrismaRefreshTokenRepository();
 
-const generateRefreshTokenProvider = new GenerateRefreshTokenProvider(
-  refreshTokenRepository
-);
+const refreshTokenProvider = new RefreshTokenProvider(refreshTokenRepository);
+const tokenProvider = new TokenProvider();
+
 const authenticateUserUseCase = new AuthenticateUserUseCase(
   usersRepository,
-  generateRefreshTokenProvider
+  tokenProvider,
+  refreshTokenProvider
 );
 
 const authenticateUserController = new AuthenticateUserController(
