@@ -1,13 +1,15 @@
-import { GenerateTokenProvider } from "../../providers/GenerateTokenProvider";
+import { IRefreshTokenProvider } from "../../providers/IRefreshTokenProvider";
+import { ITokenProvider } from "../../providers/ITokenProvider";
 import { IRefreshTokenRepository } from "../../repositories/IRefreshTokenRepository";
 
 export class RefreshTokenUseCase {
   constructor(
     private refreshTokenRepository: IRefreshTokenRepository,
-    private generateTokenProvider: GenerateTokenProvider
+    private tokenProvider: ITokenProvider,
+    private refreshTokenProvider: IRefreshTokenProvider
   ) {}
 
-  async execute(refreshTokenId: string): Promise<string> {
+  async execute(refreshTokenId: string) {
     const refreshToken = await this.refreshTokenRepository.findById(
       refreshTokenId
     );
@@ -16,7 +18,22 @@ export class RefreshTokenUseCase {
       throw new Error("Invalid refresh token!");
     }
 
-    const token = this.generateTokenProvider.execute(refreshToken.user_id);
-    return token;
+    const token = this.tokenProvider.generate(refreshToken.user_id);
+    const isRefreshTokenExpired = this.refreshTokenProvider.isExpired(
+      refreshToken.expires_in
+    );
+
+    if (isRefreshTokenExpired) {
+      await this.refreshTokenRepository.deleteMany(refreshToken.user_id);
+
+      const newToken = this.tokenProvider.generate(refreshToken.user_id);
+      const newRefreshToken = await this.refreshTokenProvider.generate(
+        refreshToken.user_id
+      );
+
+      return { token: newToken, refreshToken: newRefreshToken };
+    }
+
+    return { token };
   }
 }
