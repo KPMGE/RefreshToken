@@ -5,4 +5,5 @@ export interface IUsersRepositoty {
   findUserById(id: string): Promise<User>;
   findUserByUserName(user_name: string): Promise<User>;
   getAllUsers(): Promise<User[]>;
+  delete(userId: string): Promise<User>;
 }
