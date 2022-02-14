@@ -33,4 +33,14 @@ export class PrismaUsersRepository implements IUsersRepositoty {
     const users = await client.user.findMany();
     return users;
   }
+
+  async delete(userId: string): Promise<User> {
+    const deletedUser = await client.user.delete({
+      where: {
+        id: userId,
+      },
+    });
+
+    return deletedUser;
+  }
 }
