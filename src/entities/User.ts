@@ -9,8 +9,7 @@ export class User {
   constructor(user: Omit<User, "id">, id?: string) {
     Object.assign(this, user);
 
-    if (!id) {
-      this.id = uuid();
-    }
+    // if some id is provided, use it, otherwise, generate a brand new one.
+    this.id = id ? id : uuid();
   }
 }
