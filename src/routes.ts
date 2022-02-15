@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { request, Router } from "express";
 import { ensureAuthenticated } from "./middlewares/ensureAuthenticated";
 import { authenticateUserController } from "./useCases/AuthenticateUser";
 import { createUserController } from "./useCases/CreateUser";
@@ -6,6 +6,7 @@ import { deleteUserController } from "./useCases/DeleteUser";
 import { getAllUsersController } from "./useCases/GetAllUsers";
 import { getUserByIdController } from "./useCases/GetUserById";
 import { refreshTokenController } from "./useCases/RefreshToken";
+import { updateUserController } from "./useCases/UpdateUser";
 
 const routes = Router();
 
@@ -29,8 +30,16 @@ routes.post("/users/refresh-token", (request, response) => {
   refreshTokenController.handle(request, response);
 });
 
-routes.delete("/users/delete/:userId", (request, response) => {
-  deleteUserController.handle(request, response);
+routes.delete(
+  "/users/delete/:userId",
+  ensureAuthenticated,
+  (request, response) => {
+    deleteUserController.handle(request, response);
+  }
+);
+
+routes.put("/users/update", ensureAuthenticated, (request, response) => {
+  updateUserController.handle(request, response);
 });
 
 export { routes };
